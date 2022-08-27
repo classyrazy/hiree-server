@@ -6,7 +6,7 @@ const app = express();
 const userRoutes = require("./routes/user")
 let PORT = process.env.PORT || 3000
 
-var whitelist = ['http://localhost:3000', 'http://example2.com']
+var whitelist = ['http://localhost:3000', 'https://hiree.vercel.app/']
 var corsOptions = {
     origin: function (origin, callback) {
         if (whitelist.indexOf(origin) !== -1) {
