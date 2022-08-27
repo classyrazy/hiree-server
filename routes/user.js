@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const {signupUser, loginUser, signupHiring} = require('../controllers/userController')
+const requireAuth = require('../middleware/requireAuth');
+
+const {signupUser, loginUser, signupHiring,createdeveloperProfile} = require('../controllers/userController');
+const { request, response } = require('express');
 
 router.post("/signup", signupUser);
 router.post("/hiring/signup", signupHiring);
 router.post("/login", loginUser);
+router.post("/create-profile",requireAuth, createdeveloperProfile);
 
 module.exports = router;

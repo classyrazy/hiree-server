@@ -3,13 +3,14 @@ const SCHEMA = process.env.INSTANCE_SCHEMA;
 const bycrypt = require('bcrypt')
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
+
 function createToken(id) {
     return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '3d' })
 }
 // signup ordinary user
 
 async function signupUser(req, res, next) {
-
+    console.log(req.body)
     // check if user exists
     const { email, password } = req.body
     if (!email || !password) {
@@ -17,9 +18,6 @@ async function signupUser(req, res, next) {
     }
     if (!validator.isEmail(email)) {
         return res.status(400).json({ error: "Please enter a valid email" })
-    }
-    if (!validator.isStrongPassword(password)) {
-        return res.status(400).json({ error: "Please enter a strong password" })
     }
     const user = await db.searchByValue({
         table: "user",
@@ -125,9 +123,6 @@ async function signupHiring(req, res, next) {
     if (!validator.isEmail(email)) {
         return res.status(400).json({ error: "Please enter a valid email" })
     }
-    if (!validator.isStrongPassword(password)) {
-        return res.status(400).json({ error: "Please enter a strong password" })
-    }
     const user = await db.searchByValue({
         table: "user",
         searchAttribute: "email",
@@ -177,8 +172,16 @@ async function signupHiring(req, res, next) {
         res.status(400).json({ error: error.message })
     }
 }
+async function createdeveloperProfile(req, res, next) {
+    const {firstname, lastname, whoAreYou, pronouns, funFacts, } = req.body
+    if (!email || !password || !name) {
+        return res.status(400).json({ error: "Please enter all fields" })
+    }
+    
+}
 module.exports = {
     signupUser,
     loginUser,
-    signupHiring
+    signupHiring,
+    createdeveloperProfile,
 }
