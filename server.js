@@ -4,6 +4,8 @@ const cors = require('cors');
 dotenv.config();
 const app = express();
 const userRoutes = require("./routes/user")
+const hireRoutes = require("./routes/hire")
+const jobRoutes = require("./routes/job")
 let PORT = process.env.PORT || 3000
 
 var whitelist = ['http://localhost:3000', 'https://hiree.vercel.app/']
@@ -25,6 +27,8 @@ app.use(function (req, res, next) {
 })
 app.use(express.json());
 app.use("/api/user", userRoutes);
+app.use("/api/hire", hireRoutes);
+app.use("/api/jobs", jobRoutes);
 app.post("/test", (req, res) => {
     console.log(req.body)
     res.send("hello")

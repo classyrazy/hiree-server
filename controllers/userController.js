@@ -116,7 +116,7 @@ async function loginUser(req, res) {
 async function signupHiring(req, res, next) {
 
     // check if user exists
-    const { email, password,name } = req.body
+    const { email, password, name } = req.body
     if (!email || !password || !name) {
         return res.status(400).json({ error: "Please enter all fields" })
     }
@@ -141,7 +141,7 @@ async function signupHiring(req, res, next) {
             {
                 table: 'user',
                 records: [
-                    {   
+                    {
                         company_name: name,
                         email: email,
                         password: hashedPassword,
@@ -173,11 +173,39 @@ async function signupHiring(req, res, next) {
     }
 }
 async function createdeveloperProfile(req, res, next) {
-    const {firstname, lastname, whoAreYou, pronouns, funFacts, } = req.body
-    if (!email || !password || !name) {
-        return res.status(400).json({ error: "Please enter all fields" })
+    console.log(req.body)
+    const { firstname, lastname, whoAreYou, pronouns, funFact, experience, portfolio, twitter, linkedin, github, file } = req.body
+    if (!firstname || !lastname || !whoAreYou || !pronouns || !experience || !twitter || !twitter || !github || !file) {
+        return res.status(400).json({ error: "Please enter all required fields" })
     }
-    
+    try {
+        // Remenber to add multer 
+        const userProfile = await db.insert({
+            table: 'developer_profile',
+            records: [{
+                email: req.user.email,
+                firstname: firstname,
+                lastname: lastname,
+                whoAreYou: whoAreYou,
+                pronouns: pronouns,
+                funFact: funFact,
+                experience: experience,
+                portfolio: portfolio,
+                twitter: twitter,
+                linkedin: linkedin,
+                github: github
+            }],
+        }, (err, response) => {
+            if (err) {
+                next(new Error(err.error))
+            }
+            console.log(response)
+            res.status(response.statusCode).json({ message: "Profile created"});
+        })
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+
 }
 module.exports = {
     signupUser,
