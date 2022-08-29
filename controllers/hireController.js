@@ -117,13 +117,19 @@ async function createReview(req, res, next) {
 
 }
 
-async function getProfile(req, res, next) {
+async function getReviewProfile(req, res, next) {
     const { routeParam, routeQuery} = req.body;
     try {
         const Query = `SELECT * FROM ${SCHEMA}.review WHERE id = "${routeParam}"`
         const review = await db.query(Query)
         console.log(review.data)
-        res.status(200).json(review.data)
+
+        // res.status(200).json(review.data)
+        const Query2 = `SELECT * FROM ${SCHEMA}.developer_profile WHERE id = "${routeQuery}"`
+        const developerProfile = await db.query(Query2)
+
+        res.status(200).json({review: review.data, developer: developerProfile.data})
+
     } catch (error) {
         res.status(500).json({ error: error.message })
     }
@@ -134,5 +140,5 @@ module.exports = {
     getAllcompanyPostedJobs,
     startReview,
     createReview,
-    getProfile
+    getReviewProfile
 }
