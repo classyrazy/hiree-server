@@ -24,7 +24,7 @@ async  function applyForJob(req, res, next) {
               operation: "update",
               table: "jobs",
               records: [{
-                id: _id,
+                id: id,
                 applications: job.data[0].applications + 1
               }],
             },

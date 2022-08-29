@@ -25,7 +25,7 @@ const requireAuthHiring = async (req, res, next) => {
             console.log(user.data[0])
         next();
     } catch (error) {
-        res.status(401).json({ error: 'Unauthorized request' });
+        res.status(401).json({ error: 'Unauthorized request as developer' });
     }
 }
 module.exports = requireAuthHiring;
