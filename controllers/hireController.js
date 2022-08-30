@@ -70,6 +70,15 @@ async function getAllcompanyPostedJobs(req, res, next) {
         res.status(500).json({ error: error.message })
     }
 }
+async function getAllJobs(req, res, next) {
+    try {
+        const Query = `SELECT * FROM ${SCHEMA}.jobs`
+        const allPostedJobs = await db.query(Query)
+        res.status(200).json(allPostedJobs.data)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 
 async function startReview(req, res, next) {
     const { skills } = req.body;
@@ -140,5 +149,6 @@ module.exports = {
     getAllcompanyPostedJobs,
     startReview,
     createReview,
-    getReviewProfile
+    getReviewProfile,
+    getAllJobs
 }
