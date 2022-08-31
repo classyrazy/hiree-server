@@ -174,8 +174,8 @@ async function signupHiring(req, res, next) {
 }
 async function createdeveloperProfile(req, res, next) {
     console.log(req.body)
-    const { firstname, lastname, whoAreYou, pronouns, funFact, experience, portfolio, twitter, linkedin, github, file, skills } = req.body
-    if (!firstname || !lastname || !whoAreYou || !pronouns || !experience || !twitter || !twitter || !github || !file || !skills) {
+    const { firstname, lastname, whoAreYou, pronouns, funFact, experience, portfolio, twitter, linkedin, github, file, skills, country,city, workmodel, jobLocationType, jobInterests, skillsImprovement } = req.body
+    if (!firstname || !lastname || !whoAreYou || !pronouns || !experience || !twitter || !twitter || !github || !file || !skills || !country || !city || !workmodel || !jobLocationType || !jobInterests || !skillsImprovement) {
         return res.status(400).json({ error: "Please enter all required fields" })
     }
     try {
@@ -196,6 +196,12 @@ async function createdeveloperProfile(req, res, next) {
                 github: github,
                 file: file,
                 skills: skills,
+                country: country,
+                city: city,
+                workmodel: workmodel,
+                jobLocationType: jobLocationType,
+                jobInterests: jobInterests,
+                skillsImprovement: skillsImprovement
             }],
         }, (err, response) => {
             if (err) {

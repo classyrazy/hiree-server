@@ -35,7 +35,7 @@ async function createJob(req, res, next) {
     // })
     try {
         // Remenber to add multer 
-        const userProfile = await db.insert({
+        const jobCreated = await db.insert({
             table: 'jobs',
             records: [{
                 company_id: req.user.id,
@@ -45,7 +45,7 @@ async function createJob(req, res, next) {
                 description: description,
                 job_location_type: jobLocationType,
                 skills: skills,
-                applications: 0
+                applications: null
 
             }],
         }, (err, response) => {
@@ -128,6 +128,7 @@ async function createReview(req, res, next) {
 
 async function getReviewProfile(req, res, next) {
     const { routeParam, routeQuery} = req.body;
+    console.log("routeParam", routeParam, "routeQuery", routeQuery)
     try {
         const Query = `SELECT * FROM ${SCHEMA}.review WHERE id = "${routeParam}"`
         const review = await db.query(Query)
