@@ -79,7 +79,15 @@ async function getAllJobs(req, res, next) {
         res.status(500).json({ error: error.message })
     }
 }
-
+async function getAllcompanyReview(req, res, next) {
+    try {
+        const Query = `SELECT * FROM ${SCHEMA}.review WHERE company_id = "${req.user.id}"`
+        const allcompanyReview = await db.query(Query)
+        res.status(200).json(allcompanyReview.data)
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
 async function startReview(req, res, next) {
     const { skills } = req.body;
     if (!skills) {
@@ -127,7 +135,7 @@ async function createReview(req, res, next) {
 }
 
 async function getReviewProfile(req, res, next) {
-    const { routeParam, routeQuery} = req.body;
+    const { routeParam, routeQuery } = req.body;
     console.log("routeParam", routeParam, "routeQuery", routeQuery)
     try {
         const Query = `SELECT * FROM ${SCHEMA}.review WHERE id = "${routeParam}"`
@@ -138,9 +146,70 @@ async function getReviewProfile(req, res, next) {
         const Query2 = `SELECT * FROM ${SCHEMA}.developer_profile WHERE id = "${routeQuery}"`
         const developerProfile = await db.query(Query2)
 
-        res.status(200).json({review: review.data, developer: developerProfile.data})
+        res.status(200).json({ review: review.data, developer: developerProfile.data })
 
     } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+async function reviewDone(req, res, next) {
+    const { routeParam, reviewDetails } = req.body;
+    if (!routeParam || !reviewDetails) {
+        return res.status(400).json({ error: "Please enter all fields" })
+    }
+    try {
+        db.update(
+            {
+                operation: "update",
+                table: "review",
+                records: [{
+                    id: routeParam,
+                    result: reviewDetails,
+                    status: "complete"
+                }],
+            },
+            (err, response) => {
+                if (err) {
+                    return res.status(500).json(err);
+                }
+
+                res.status(response.statusCode).json(response.data);
+            }
+        );
+    } catch (error) {
+        res.status(500).json({ error: error.message })
+    }
+}
+async function getAllDevProfile(data) {
+    let resultsData = []
+    for(let scd of data.result){
+        const Query2 = `SELECT * FROM ${SCHEMA}.developer_profile WHERE id = "${scd.devId}"`
+        const developerProfile = await db.query(Query2)
+        resultsData.push({ developer: developerProfile.data[0], result: scd })
+    }
+    return resultsData
+}
+async function getAllReviewDevs(req, res, next) {
+    let { id } = req.params
+    console.log(id)
+    try {
+        console.log("brooo")
+        const Query1 = `SELECT * FROM ${SCHEMA}.review WHERE id = "${id}" AND status = "complete"`
+        const allReviewDevs = await db.query(Query1)
+        if (allReviewDevs.data.length === 0) {
+            return res.status(401).json({ message: "Review Not Found" })
+        }
+         else if (allReviewDevs.data[0].company_id !== req.user.id) {
+            return res.status(401).json({ message: "Sorry you can't view this review" })
+        }
+         else if (allReviewDevs.data[0].status !== "complete") {
+            return res.status(401).json({ message: "Review Not Complete" })
+        }
+        let testDevs = await getAllDevProfile(allReviewDevs.data[0])
+        console.log({testDevs})
+        res.status(200).json(testDevs)
+    } catch (error) {
+        console.log(error)
         res.status(500).json({ error: error.message })
     }
 }
@@ -151,5 +220,8 @@ module.exports = {
     startReview,
     createReview,
     getReviewProfile,
-    getAllJobs
+    getAllJobs,
+    reviewDone,
+    getAllReviewDevs,
+    getAllcompanyReview
 }

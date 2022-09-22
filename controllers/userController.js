@@ -178,8 +178,12 @@ async function createdeveloperProfile(req, res, next) {
     if (!firstname || !lastname || !whoAreYou || !pronouns || !experience || !twitter || !twitter || !github || !file || !skills || !country || !city || !workmodel || !jobLocationType || !jobInterests || !skillsImprovement) {
         return res.status(400).json({ error: "Please enter all required fields" })
     }
+    let computedDeveloperGithubUsername = github.split('/')[3]
+    // fetch github data
+    const githubUserDataReq = await fetch(`https://api.github.com/users/${computedDeveloperGithubUsername}`)
+    const githubUserData = await githubUserDataReq.json()
     try {
-        // Remenber to add multer 
+        // Remember to add multer 
         const userProfile = await db.insert({
             table: 'developer_profile',
             records: [{
@@ -201,7 +205,8 @@ async function createdeveloperProfile(req, res, next) {
                 workmodel: workmodel,
                 jobLocationType: jobLocationType,
                 jobInterests: jobInterests,
-                skillsImprovement: skillsImprovement
+                skillsImprovement: skillsImprovement,
+                githubUserData: githubUserData
             }],
         }, (err, response) => {
             if (err) {
