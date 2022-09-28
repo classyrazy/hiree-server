@@ -10,5 +10,6 @@ router.post("/signup", signupUser);
 router.post("/hiring/signup", signupHiring);
 router.post("/login", loginUser);
 router.post("/create-profile",requireAuthDeveloper, createdeveloperProfile);
+// router.post("/create-profile", createdeveloperProfile);
 
 module.exports = router;

@@ -5,8 +5,8 @@ const SCHEMA = process.env.INSTANCE_SCHEMA;
 
 async function createJob(req, res, next) {
     console.log(req.body)
-    const { companyName, workModel, title, description, jobLocationType, skills } = req.body
-    if (!companyName || !workModel || !title || !description || !jobLocationType || !skills) {
+    const { companyName, workModel, title, description, jobLocationType, skills, benefits, } = req.body
+    if (!companyName || !workModel || !title || !description || !jobLocationType || !skills || benefits || companyLocation ) {
         return res.status(400).json({ error: "Please enter all fields" })
     }
     // db.searchByValue({
@@ -45,7 +45,9 @@ async function createJob(req, res, next) {
                 description: description,
                 job_location_type: jobLocationType,
                 skills: skills,
-                applications: null
+                applications: [],
+                benefits: benefits,
+                company_location: companyLocation
 
             }],
         }, (err, response) => {
@@ -157,7 +159,13 @@ async function reviewDone(req, res, next) {
     if (!routeParam || !reviewDetails) {
         return res.status(400).json({ error: "Please enter all fields" })
     }
+
     try {
+        const Query = `SELECT * FROM ${SCHEMA}.review WHERE id = "${routeParam}"`
+        const review = await db.query(Query)
+        if(review.data[0].status === "complete"){
+            return res.status(400).json({ error: "Review already completed" })
+        }
         db.update(
             {
                 operation: "update",
@@ -182,7 +190,7 @@ async function reviewDone(req, res, next) {
 }
 async function getAllDevProfile(data) {
     let resultsData = []
-    for(let scd of data.result){
+    for (let scd of data.result) {
         const Query2 = `SELECT * FROM ${SCHEMA}.developer_profile WHERE id = "${scd.devId}"`
         const developerProfile = await db.query(Query2)
         resultsData.push({ developer: developerProfile.data[0], result: scd })
@@ -199,14 +207,14 @@ async function getAllReviewDevs(req, res, next) {
         if (allReviewDevs.data.length === 0) {
             return res.status(401).json({ message: "Review Not Found" })
         }
-         else if (allReviewDevs.data[0].company_id !== req.user.id) {
+        else if (allReviewDevs.data[0].company_id !== req.user.id) {
             return res.status(401).json({ message: "Sorry you can't view this review" })
         }
-         else if (allReviewDevs.data[0].status !== "complete") {
+        else if (allReviewDevs.data[0].status !== "complete") {
             return res.status(401).json({ message: "Review Not Complete" })
         }
         let testDevs = await getAllDevProfile(allReviewDevs.data[0])
-        console.log({testDevs})
+        console.log({ testDevs })
         res.status(200).json(testDevs)
     } catch (error) {
         console.log(error)

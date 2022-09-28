@@ -174,7 +174,7 @@ async function signupHiring(req, res, next) {
 }
 async function createdeveloperProfile(req, res, next) {
     console.log(req.body)
-    const { firstname, lastname, whoAreYou, pronouns, funFact, experience, portfolio, twitter, linkedin, github, file, skills, country,city, workmodel, jobLocationType, jobInterests, skillsImprovement } = req.body
+    const { firstname, lastname, whoAreYou, pronouns, funFact, experience, portfolio, twitter, linkedin, github, file, skills, country, city, workmodel, jobLocationType, jobInterests, skillsImprovement } = req.body
     if (!firstname || !lastname || !whoAreYou || !pronouns || !experience || !twitter || !twitter || !github || !file || !skills || !country || !city || !workmodel || !jobLocationType || !jobInterests || !skillsImprovement) {
         return res.status(400).json({ error: "Please enter all required fields" })
     }
@@ -188,6 +188,7 @@ async function createdeveloperProfile(req, res, next) {
             table: 'developer_profile',
             records: [{
                 email: req.user.email,
+                email: "test1@gmail.com",
                 firstname: firstname,
                 lastname: lastname,
                 whoAreYou: whoAreYou,
@@ -208,12 +209,33 @@ async function createdeveloperProfile(req, res, next) {
                 skillsImprovement: skillsImprovement,
                 githubUserData: githubUserData
             }],
-        }, (err, response) => {
+        }, async (err, response) => {
             if (err) {
                 next(new Error(err.error))
             }
             console.log(response)
-            res.status(response.statusCode).json({ message: "Profile created"});
+            // try {
+            db.upsert(
+                {
+                    operation: "upsert",
+                    table: "user",
+                    records: [{
+                        id: req.user.id,
+                        dev_profile_id: response.data.inserted_hashes[0]
+                    }],
+                },
+                (err, response) => {
+                    if (err) {
+                        return res.status(500).json(err);
+                    }
+
+                    res.status(response.statusCode).json({ message: "Profile created" });
+                }
+            );
+            // } catch (error) {
+            // res.status(500).json({ error: error.message })
+            // }
+            // res.status(response.statusCode).json({ message: "Profile created" });
         })
     } catch (error) {
         res.status(400).json({ error: error.message })
