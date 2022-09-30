@@ -5,7 +5,7 @@ const SCHEMA = process.env.INSTANCE_SCHEMA;
 
 async function createJob(req, res, next) {
     console.log(req.body)
-    const { companyName, workModel, title, description, jobLocationType, skills, benefits, } = req.body
+    const { companyName, workModel, title, description, jobLocationType, skills, benefits, companyLocation} = req.body
     if (!companyName || !workModel || !title || !description || !jobLocationType || !skills || benefits || companyLocation ) {
         return res.status(400).json({ error: "Please enter all fields" })
     }
