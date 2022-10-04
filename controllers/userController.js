@@ -173,10 +173,12 @@ async function signupHiring(req, res, next) {
     }
 }
 async function createdeveloperProfile(req, res, next) {
-    console.log(req.body)
     const { firstname, lastname, whoAreYou, pronouns, funFact, experience, portfolio, twitter, linkedin, github, file, skills, country, city, workmodel, jobLocationType, jobInterests, skillsImprovement } = req.body
     if (!firstname || !lastname || !whoAreYou || !pronouns || !experience || !twitter || !twitter || !github || !file || !skills || !country || !city || !workmodel || !jobLocationType || !jobInterests || !skillsImprovement) {
         return res.status(400).json({ error: "Please enter all required fields" })
+    }
+    if(req.user.dev_profile_id){
+        return res.status(400).json({ error: "Developer profile already exists" })
     }
     let computedDeveloperGithubUsername = github.split('/')[3]
     // fetch github data
@@ -229,7 +231,7 @@ async function createdeveloperProfile(req, res, next) {
                         return res.status(500).json(err);
                     }
 
-                    res.status(response.statusCode).json({ message: "Profile created" });
+                    res.status(response.statusCode).json({ data: response.data.inserted_hashes[0]});
                 }
             );
             // } catch (error) {
@@ -242,9 +244,43 @@ async function createdeveloperProfile(req, res, next) {
     }
 
 }
+async function getLoggedInUser(req,res, next){
+    try {
+        const user = await db.searchByValue({
+            table: "user",
+            searchAttribute: "id",
+            searchValue: req.user.id,
+            attributes: ["*"],
+        })
+        res.status(200).json({user: {
+            id: user.data[0].id,
+            email: user.data[0].email,
+            type: user.data[0].type,
+            dev_profile_id: user.data[0].dev_profile_id
+        }})
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+}
+async function getDeveloperProfile(req,res, next){
+    let {id} = req.params
+    try {
+        const user = await db.searchByValue({
+            table: "developer_profile",
+            searchAttribute: "id",
+            searchValue: id,
+            attributes: ["*"],
+        })
+        res.status(200).json({user: user.data[0]})
+    } catch (error) {
+        res.status(400).json({ error: error.message })
+    }
+}
 module.exports = {
     signupUser,
     loginUser,
     signupHiring,
     createdeveloperProfile,
+    getLoggedInUser,
+    getDeveloperProfile
 }

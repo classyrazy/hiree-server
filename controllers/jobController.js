@@ -19,6 +19,9 @@ async function applyForJob(req, res, next) {
     const Query = `SELECT * FROM ${SCHEMA}.jobs WHERE id = "${id}"`
     const job = await db.query(Query)
     // job.data[0].applications.
+    if(!req.user.dev_profile_id){
+      return res.status(400).json({ error: "Please complete your profile first" })
+    }
     if (job.data[0].applications.indexOf(req.user.dev_profile_id) !== -1) {
       return res.status(500).json({ error: "You have applied for this job already" });
     }
